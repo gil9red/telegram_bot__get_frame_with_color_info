@@ -57,7 +57,7 @@ log = get_logger(__file__)
 @run_async
 @catch_error(log)
 @log_func(log)
-def on_start(update: Update, context: CallbackContext):
+def on_help(update: Update, context: CallbackContext):
     message = update.message or update.edited_message
     message.reply_text('''\
     Write the color, for examples: 
@@ -118,7 +118,8 @@ def main():
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
 
-    dp.add_handler(CommandHandler('start', on_start))
+    dp.add_handler(CommandHandler('start', on_help))
+    dp.add_handler(CommandHandler('help', on_help))
     dp.add_handler(MessageHandler(Filters.text, on_request))
 
     dp.add_error_handler(on_error)
