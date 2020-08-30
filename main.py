@@ -80,7 +80,7 @@ def on_help(update: Update, context: CallbackContext):
     message = update.message or update.edited_message
 
     message.reply_text('''\
-    Write the color, for examples: 
+Write the color, for examples: 
     - darkCyan
     - #007396
     - rgb 255 100 200 
@@ -89,7 +89,7 @@ def on_help(update: Update, context: CallbackContext):
     - hsl 0 100 50
     - cmyk 79 40 0 66
     
-    Supported commands:
+Supported commands:
     - /help
     - /random
     ''')
