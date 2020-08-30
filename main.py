@@ -8,6 +8,7 @@ from io import BytesIO
 import os
 import time
 from typing import Optional
+from random import randint
 import re
 
 # pip install python-telegram-bot
@@ -54,30 +55,9 @@ def parse_color(color_name: str) -> Optional[QColor]:
 log = get_logger(__file__)
 
 
-@run_async
-@catch_error(log)
-@log_func(log)
-def on_help(update: Update, context: CallbackContext):
-    message = update.message or update.edited_message
-    message.reply_text('''\
-    Write the color, for examples: 
-    - darkCyan
-    - #007396
-    - rgb 255 100 200 
-    - hex ff a0 ff
-    - hsv 359 50 100
-    - hsl 0 100 50
-    - cmyk 79 40 0 66
-    ''')
-
-
-@run_async
-@catch_error(log)
-@log_func(log)
-def on_request(update: Update, context: CallbackContext):
+def send_color(color: QColor, update: Update, context: CallbackContext):
     message = update.message or update.edited_message
 
-    color = parse_color(message.text)
     if not color:
         message.reply_text('Not valid color!')
         return
@@ -91,6 +71,47 @@ def on_request(update: Update, context: CallbackContext):
     message.reply_photo(
         BytesIO(data), reply_to_message_id=message.message_id
     )
+
+
+@run_async
+@catch_error(log)
+@log_func(log)
+def on_help(update: Update, context: CallbackContext):
+    message = update.message or update.edited_message
+
+    message.reply_text('''\
+    Write the color, for examples: 
+    - darkCyan
+    - #007396
+    - rgb 255 100 200 
+    - hex ff a0 ff
+    - hsv 359 50 100
+    - hsl 0 100 50
+    - cmyk 79 40 0 66
+    
+    Supported commands:
+    - /help
+    - /random
+    ''')
+
+
+@run_async
+@catch_error(log)
+@log_func(log)
+def on_request(update: Update, context: CallbackContext):
+    message = update.message or update.edited_message
+
+    color = parse_color(message.text)
+    send_color(color, update, context)
+
+
+@run_async
+@catch_error(log)
+@log_func(log)
+def on_random(update: Update, context: CallbackContext):
+    r, g, b = (randint(0, 255) for _ in range(3))
+    color = QColor.fromRgb(r, g, b)
+    send_color(color, update, context)
 
 
 @catch_error(log)
@@ -120,6 +141,7 @@ def main():
 
     dp.add_handler(CommandHandler('start', on_help))
     dp.add_handler(CommandHandler('help', on_help))
+    dp.add_handler(CommandHandler('random', on_random))
     dp.add_handler(MessageHandler(Filters.text, on_request))
 
     dp.add_error_handler(on_error)
