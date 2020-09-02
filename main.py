@@ -55,7 +55,7 @@ def parse_color(color_name: str) -> Optional[QColor]:
 log = get_logger(__file__)
 
 
-def send_color(color: QColor, update: Update, context: CallbackContext):
+def reply_color(color: QColor, update: Update, context: CallbackContext):
     message = update.message or update.edited_message
 
     if not color:
@@ -63,6 +63,9 @@ def send_color(color: QColor, update: Update, context: CallbackContext):
         return
 
     data = get_frame_with_color_info(color, rounded=False, as_bytes=True)
+
+    r, g, b, _ = color.getRgb()
+    log.debug(f'Reply color (RGB): {r} {g} {b}')
 
     context.bot.send_chat_action(
         chat_id=message.chat_id, action=ChatAction.UPLOAD_PHOTO
@@ -73,10 +76,7 @@ def send_color(color: QColor, update: Update, context: CallbackContext):
     )
 
 
-@run_async
-@catch_error(log)
-@log_func(log)
-def on_help(update: Update, context: CallbackContext):
+def reply_help(update: Update):
     message = update.message or update.edited_message
 
     message.reply_text('''\
@@ -88,7 +88,7 @@ Write the color, for examples:
     - hsv 359 50 100
     - hsl 0 100 50
     - cmyk 79 40 0 66
-    
+
 Supported commands:
     - /help
     - /random
@@ -98,11 +98,25 @@ Supported commands:
 @run_async
 @catch_error(log)
 @log_func(log)
+def on_start(update: Update, context: CallbackContext):
+    reply_help(update)
+
+
+@run_async
+@catch_error(log)
+@log_func(log)
+def on_help(update: Update, context: CallbackContext):
+    reply_help(update)
+
+
+@run_async
+@catch_error(log)
+@log_func(log)
 def on_request(update: Update, context: CallbackContext):
     message = update.message or update.edited_message
 
     color = parse_color(message.text)
-    send_color(color, update, context)
+    reply_color(color, update, context)
 
 
 @run_async
@@ -111,7 +125,7 @@ def on_request(update: Update, context: CallbackContext):
 def on_random(update: Update, context: CallbackContext):
     r, g, b = (randint(0, 255) for _ in range(3))
     color = QColor.fromRgb(r, g, b)
-    send_color(color, update, context)
+    reply_color(color, update, context)
 
 
 @catch_error(log)
@@ -139,7 +153,7 @@ def main():
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
 
-    dp.add_handler(CommandHandler('start', on_help))
+    dp.add_handler(CommandHandler('start', on_start))
     dp.add_handler(CommandHandler('help', on_help))
     dp.add_handler(CommandHandler('random', on_random))
     dp.add_handler(MessageHandler(Filters.text, on_request))
