@@ -60,8 +60,7 @@ def log_func(logger: logging.Logger):
                     language_code = update.effective_user.language_code
 
                 try:
-                    message = update.message or update.edited_message
-                    command = message.text
+                    command = update.effective_message.text
                 except:
                     command = ''
 
@@ -91,8 +90,7 @@ def catch_error(logger: logging.Logger):
                 logger.exception('Error: %s\nUpdate: %s', context.error, update)
 
                 if update:
-                    message = update.message or update.edited_message
-                    message.reply_text(config.ERROR_TEXT)
+                    update.effective_message.reply_text(config.ERROR_TEXT)
 
         return wrapper
     return actual_decorator

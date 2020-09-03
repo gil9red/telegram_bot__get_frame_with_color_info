@@ -56,7 +56,7 @@ log = get_logger(__file__)
 
 
 def reply_color(color: QColor, update: Update, context: CallbackContext):
-    message = update.message or update.edited_message
+    message = update.effective_message
 
     if not color:
         message.reply_text('Not valid color!')
@@ -77,9 +77,7 @@ def reply_color(color: QColor, update: Update, context: CallbackContext):
 
 
 def reply_help(update: Update):
-    message = update.message or update.edited_message
-
-    message.reply_text('''\
+    update.effective_message.reply_text('''\
 Write the color, for examples: 
     - darkCyan
     - #007396
@@ -113,9 +111,7 @@ def on_help(update: Update, context: CallbackContext):
 @catch_error(log)
 @log_func(log)
 def on_request(update: Update, context: CallbackContext):
-    message = update.message or update.edited_message
-
-    color = parse_color(message.text)
+    color = parse_color(update.effective_message.text)
     reply_color(color, update, context)
 
 
@@ -132,8 +128,7 @@ def on_random(update: Update, context: CallbackContext):
 def on_error(update: Update, context: CallbackContext):
     log.exception('Error: %s\nUpdate: %s', context.error, update)
     if update:
-        message = update.message or update.edited_message
-        message.reply_text(config.ERROR_TEXT)
+        update.effective_message.reply_text(config.ERROR_TEXT)
 
 
 def main():
