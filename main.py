@@ -24,6 +24,7 @@ from third_party.draw_frame_with_color_info import get_frame_with_color_info, QC
 
 pattern_rgb = re.compile(r'rgb (\d+),? (\d+),? (\d+)', flags=re.IGNORECASE)
 pattern_hex = re.compile(r'hex ([\da-f]+),? ([\da-f]+),? ([\da-f]+)', flags=re.IGNORECASE)
+pattern_hex_2 = re.compile(r'hex ([\da-f]{2})([\da-f]{2})([\da-f]{2})', flags=re.IGNORECASE)
 pattern_hsv = re.compile(r'hsv (\d+),? (\d+),? (\d+)', flags=re.IGNORECASE)
 pattern_hsl = re.compile(r'hsl (\d+),? (\d+),? (\d+)', flags=re.IGNORECASE)
 pattern_cmyk = re.compile(r'cmyk (\d+),? (\d+),? (\d+),? (\d+)', flags=re.IGNORECASE)
@@ -31,6 +32,7 @@ pattern_cmyk = re.compile(r'cmyk (\d+),? (\d+),? (\d+),? (\d+)', flags=re.IGNORE
 PATTERNS = [
     (pattern_rgb, int, QColor.fromRgb),
     (pattern_hex, lambda x: int(x, 16), QColor.fromRgb),
+    (pattern_hex_2, lambda x: int(x, 16), QColor.fromRgb),
     (pattern_hsv, int, QColor.fromHsv),
     (pattern_hsl, int, QColor.fromHsl),
     (pattern_cmyk, int, QColor.fromCmyk),
