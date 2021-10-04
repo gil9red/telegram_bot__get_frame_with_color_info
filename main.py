@@ -15,7 +15,6 @@ from io import BytesIO
 # pip install python-telegram-bot
 from telegram import Update, ChatAction
 from telegram.ext import Updater, MessageHandler, CommandHandler, Filters, CallbackContext
-from telegram.ext.dispatcher import run_async
 
 import config
 from common import get_logger, log_func, catch_error
@@ -95,21 +94,18 @@ Supported commands:
     ''')
 
 
-@run_async
 @catch_error(log)
 @log_func(log)
 def on_start(update: Update, context: CallbackContext):
     reply_help(update)
 
 
-@run_async
 @catch_error(log)
 @log_func(log)
 def on_help(update: Update, context: CallbackContext):
     reply_help(update)
 
 
-@run_async
 @catch_error(log)
 @log_func(log)
 def on_request(update: Update, context: CallbackContext):
@@ -117,7 +113,6 @@ def on_request(update: Update, context: CallbackContext):
     reply_color(color, update, context)
 
 
-@run_async
 @catch_error(log)
 @log_func(log)
 def on_random(update: Update, context: CallbackContext):
@@ -140,29 +135,21 @@ def main():
 
     log.debug('Start')
 
-    # Create the EventHandler and pass it your bot's token.
     updater = Updater(
         config.TOKEN,
-        workers=workers,
-        use_context=True
+        workers=workers
     )
 
-    # Get the dispatcher to register handlers
     dp = updater.dispatcher
 
-    dp.add_handler(CommandHandler('start', on_start))
-    dp.add_handler(CommandHandler('help', on_help))
-    dp.add_handler(CommandHandler('random', on_random))
-    dp.add_handler(MessageHandler(Filters.text, on_request))
+    dp.add_handler(CommandHandler('start', on_start, run_async=True))
+    dp.add_handler(CommandHandler('help', on_help, run_async=True))
+    dp.add_handler(CommandHandler('random', on_random, run_async=True))
+    dp.add_handler(MessageHandler(Filters.text, on_request, run_async=True))
 
     dp.add_error_handler(on_error)
 
-    # Start the Bot
     updater.start_polling()
-
-    # Run the bot until the you presses Ctrl-C or the process receives SIGINT,
-    # SIGTERM or SIGABRT. This should be used most of the time, since
-    # start_polling() is non-blocking and will stop the bot gracefully.
     updater.idle()
 
     log.debug('Finish')
