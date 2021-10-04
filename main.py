@@ -4,12 +4,13 @@
 __author__ = 'ipetrash'
 
 
-from io import BytesIO
 import os
 import time
+import re
+
 from typing import Optional
 from random import randint
-import re
+from io import BytesIO
 
 # pip install python-telegram-bot
 from telegram import Update, ChatAction
@@ -65,6 +66,7 @@ def reply_color(color: QColor, update: Update, context: CallbackContext):
         return
 
     data = get_frame_with_color_info(color, rounded=False, as_bytes=True)
+    bytes_io = BytesIO(data)
 
     r, g, b, _ = color.getRgb()
     log.debug(f'Reply color (RGB): {r} {g} {b}')
@@ -73,9 +75,7 @@ def reply_color(color: QColor, update: Update, context: CallbackContext):
         chat_id=message.chat_id, action=ChatAction.UPLOAD_PHOTO
     )
 
-    message.reply_photo(
-        BytesIO(data), reply_to_message_id=message.message_id
-    )
+    message.reply_photo(bytes_io, quote=True)
 
 
 def reply_help(update: Update):
