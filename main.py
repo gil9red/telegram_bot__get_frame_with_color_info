@@ -14,7 +14,7 @@ from io import BytesIO
 
 # pip install python-telegram-bot
 from telegram import Update, ChatAction
-from telegram.ext import Updater, MessageHandler, CommandHandler, Filters, CallbackContext
+from telegram.ext import Updater, MessageHandler, CommandHandler, Filters, CallbackContext, Defaults
 
 import config
 from common import get_logger, log_func, catch_error
@@ -131,21 +131,22 @@ def on_error(update: Update, context: CallbackContext):
 def main():
     cpu_count = os.cpu_count()
     workers = cpu_count
-    log.debug('System: CPU_COUNT=%s, WORKERS=%s', cpu_count, workers)
+    log.debug(f'System: CPU_COUNT={cpu_count}, WORKERS={workers}')
 
     log.debug('Start')
 
     updater = Updater(
         config.TOKEN,
-        workers=workers
+        workers=workers,
+        defaults=Defaults(run_async=True),
     )
 
     dp = updater.dispatcher
 
-    dp.add_handler(CommandHandler('start', on_start, run_async=True))
-    dp.add_handler(CommandHandler('help', on_help, run_async=True))
-    dp.add_handler(CommandHandler('random', on_random, run_async=True))
-    dp.add_handler(MessageHandler(Filters.text, on_request, run_async=True))
+    dp.add_handler(CommandHandler('start', on_start))
+    dp.add_handler(CommandHandler('help', on_help))
+    dp.add_handler(CommandHandler('random', on_random))
+    dp.add_handler(MessageHandler(Filters.text, on_request))
 
     dp.add_error_handler(on_error)
 
